@@ -16,22 +16,35 @@ slack_token = os.getenv('SLACK_TOKEN')
 slack_channel = os.getenv('SLACK_CHANNEL')
 slack = Slacker(slack_token)
 
+job_name = os.getenv('JOB_NAME')
+matrix_job = os.getenv('MATRIX_JOB', False)
+build_label = os.getenv('BUILD_LABEL')
+test_result_pattern = os.getenv('TEST_RESULT_PATTERN')
 
-def get_change_in_test_results(job_name):
+def get_change_in_test_results():
     job = server.get_job(job_name)
     build_ids = sorted([id for id in job.get_build_ids()], reverse=True)
 
     failure_history = []
     for id in build_ids:
         build = job.get_build(id)
-        matrix_runs = build.get_matrix_runs()
-        for run in matrix_runs:
-            desc = run.get_description()
-            if desc and 'rhel-7.4-x86_64 / stable-2.5' in desc:
-                res = re.search("\((.*) failed (.*) error\)", desc)
+        if matrix_job:
+            matrix_runs = build.get_matrix_runs()
+            for run in matrix_runs:
+                desc = run.get_description()
+                if desc and build_label in desc:
+                    res = re.search(test_result_pattern, desc)
+                    if res and len(failure_history) < 2:
+                        total_failures = int(res.group(1)) + int(res.group(2))
+                        failure_history.append(total_failures)
+        else:
+            desc = build.get_description()
+            if desc and build_label in desc:
+                res = re.search(test_result_pattern, desc)
                 if res and len(failure_history) < 2:
                     total_failures = int(res.group(1)) + int(res.group(2))
                     failure_history.append(total_failures)
+
         if len(failure_history) == 2:
             break
 
@@ -42,8 +55,8 @@ def post_slack_msg(text):
     slack.chat.post_message(slack_channel, text, icon_emoji=':ansible:')
    
 
-def create_test_update(job_name):
-    change = get_change_in_test_results(job_name)
+def create_test_update():
+    change = get_change_in_test_results()
     emoji_map = {20: ':tornado:',
                  15: ':thunder_cloud_and_rain:',
                  10: ':rain_cloud:',
@@ -70,4 +83,4 @@ def create_test_update(job_name):
 
 
 if __name__ == '__main__':
-    create_test_update('Test_Tower_Integration')
+    create_test_update()
