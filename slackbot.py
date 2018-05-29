@@ -72,14 +72,14 @@ def create_test_update():
             break
     
     if change > 0:
-        compare_term = 'more '
+        description = '{0} has {1} more failures'.format(job_name, change)
     elif change == 0:
-        compare_term = ''
+        description = '{0} has the same number of failures'.format(job_name)
     else:
-        compare_term = 'fewer '
         change = -change
+        description = '{0} has {1} fewer failures'.format(job_name, change)
 
-    post_slack_msg('{0} has {1} {2}failures {3}'.format(job_name, change, compare_term, emoji))
+    post_slack_msg('{0} {1}'.format(description, emoji))
 
 
 if __name__ == '__main__':
