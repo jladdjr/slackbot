@@ -21,7 +21,7 @@ matrix_job = os.getenv('MATRIX_JOB', False)
 build_label = os.getenv('BUILD_LABEL')
 test_result_pattern = os.getenv('TEST_RESULT_PATTERN')
 
-def get_change_in_test_results():
+def get_test_results():
     job = server.get_job(job_name)
     build_ids = sorted([id for id in job.get_build_ids()], reverse=True)
 
@@ -48,7 +48,7 @@ def get_change_in_test_results():
         if len(failure_history) == 2:
             break
 
-    return failure_history[0] - failure_history[1] 
+    return failure_history[0], (failure_history[0] - failure_history[1])
 
 
 def post_slack_msg(text):
@@ -56,7 +56,7 @@ def post_slack_msg(text):
    
 
 def create_test_update():
-    change = get_change_in_test_results()
+    total_failures, change = get_test_results()
     emoji_map = {20: ':tornado:',
                  15: ':thunder_cloud_and_rain:',
                  10: ':rain_cloud:',
@@ -79,7 +79,7 @@ def create_test_update():
         change = -change
         description = '{0} has {1} fewer failures'.format(job_name, change)
 
-    post_slack_msg('{0} {1}'.format(description, emoji))
+    post_slack_msg('{0} {1}\nTotal failures: {2}'.format(description, emoji, total_failures))
 
 
 if __name__ == '__main__':
