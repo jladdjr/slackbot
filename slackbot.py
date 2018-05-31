@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from datetime import datetime
 import os
 import re
 
@@ -20,6 +21,8 @@ job_name = os.getenv('JOB_NAME')
 matrix_job = os.getenv('MATRIX_JOB', False)
 build_label = os.getenv('BUILD_LABEL')
 test_result_pattern = os.getenv('TEST_RESULT_PATTERN')
+
+show_button_owner = os.getenv('SHOW_BUTTON_OWNER')
 
 def get_test_results():
     job = server.get_job(job_name)
@@ -79,7 +82,18 @@ def create_test_update():
         change = -change
         description = '{0} has {1} fewer failures'.format(job_name, change)
 
-    post_slack_msg('{0} {1}\nTotal failures: {2}'.format(description, emoji, total_failures))
+    day_of_the_week = datetime.today().weekday()
+    button_owner_map = {0: '<@U0EKSNVMM>', #jladd
+                        1: '<@U033J8Q34>', #cwang
+                        2: '<@SA3BKGW3E>', #qe,
+                        3: '<@SA3BKGW3E>', #qe,
+                        4: '<@U9T44HF35>'} #unlikelyzero
+
+    button_owner_msg = ''
+    if show_button_owner.lower() == 'true' and day_of_the_week < 5:
+        button_owner_msg = '\nButton: {0}'.format(button_owner_map[day_of_the_week])
+
+    post_slack_msg('{0} {1}\nTotal failures: {2}{3}'.format(description, emoji, total_failures, button_owner_msg))
 
 
 if __name__ == '__main__':
