@@ -85,8 +85,8 @@ def create_test_update():
     day_of_the_week = datetime.today().weekday()
     button_owner_map = {0: '<@U0EKSNVMM>', #jladd
                         1: '<@U033J8Q34>', #cwang
-                        2: '<@SA3BKGW3E>', #qe,
-                        3: '<@SA3BKGW3E>', #qe,
+                        2: '<@T026NJJ6Z>', #qe,
+                        3: '<@T026NJJ6Z>', #qe,
                         4: '<@U9T44HF35>'} #unlikelyzero
 
     button_owner_msg = ''
