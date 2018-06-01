@@ -83,11 +83,11 @@ def create_test_update():
         description = '{0} has {1} fewer failures'.format(job_name, change)
 
     day_of_the_week = datetime.today().weekday()
-    button_owner_map = {0: '<@U0EKSNVMM>', #jladd
-                        1: '<@U033J8Q34>', #cwang
-                        2: '@qe',
-                        3: '@qe',
-                        4: '<@U9T44HF35>'} #unlikelyzero
+    button_owner_map = {0: 'jladd',
+                        1: 'cwang',
+                        2: 'qe',
+                        3: 'qe',
+                        4: 'unlikelyzero'}
 
     button_owner_msg = ''
     if show_button_owner.lower() == 'true' and day_of_the_week < 5:
