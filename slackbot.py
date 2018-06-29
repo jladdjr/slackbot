@@ -58,6 +58,9 @@ def get_test_results():
         if len(failure_history) == 2:
             break
 
+    if len(failure_history) < 2:
+        return (-2, None)
+
     return failure_history[0], (failure_history[0] - failure_history[1])
 
 
@@ -70,6 +73,9 @@ def create_test_update():
 
     if total_failures == -1:
         post_slack_msg(':skull_and_crossbones: {0} failed to run :skull_and_crossbones:'.format(job_name))
+        return
+    if total_failures == -2:
+        post_slack_msg(':construction: Failed to find results for {0} :construction:'.format(job_name))
         return
 
     emoji_map = {20: ':tornado:',
