@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import pytz
 import re
 
 from jenkinsapi.jenkins import Jenkins
@@ -48,6 +49,12 @@ def get_test_results():
                     total_failures = int(res.group(1)) + int(res.group(2))
                     failure_history.append(total_failures)
 
+        if len(failure_history) == 1:
+            timestamp = build.get_timestamp()
+            today = datetime.now(pytz.UTC)
+            if today - timestamp > timedelta(days=1):
+                return (-1, None)
+
         if len(failure_history) == 2:
             break
 
@@ -60,6 +67,11 @@ def post_slack_msg(text):
 
 def create_test_update():
     total_failures, change = get_test_results()
+
+    if total_failures == -1:
+        post_slack_msg(':skull_and_crossbones: {0} failed to run :skull_and_crossbones:'.format(job_name))
+        return
+
     emoji_map = {20: ':tornado:',
                  15: ':thunder_cloud_and_rain:',
                  10: ':rain_cloud:',
