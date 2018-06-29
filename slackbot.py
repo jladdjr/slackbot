@@ -19,7 +19,7 @@ slack_channel = os.getenv('SLACK_CHANNEL')
 slack = Slacker(slack_token)
 
 job_name = os.getenv('JOB_NAME')
-matrix_job = os.getenv('MATRIX_JOB', False)
+matrix_job = os.getenv('MATRIX_JOB', 'False')
 build_label = os.getenv('BUILD_LABEL')
 test_result_pattern = os.getenv('TEST_RESULT_PATTERN')
 
@@ -30,9 +30,10 @@ def get_test_results():
     build_ids = sorted([id for id in job.get_build_ids()], reverse=True)
 
     failure_history = []
+    found_first_result = False
     for id in build_ids:
         build = job.get_build(id)
-        if matrix_job:
+        if matrix_job.lower() == 'true':
             matrix_runs = build.get_matrix_runs()
             for run in matrix_runs:
                 desc = run.get_description()
@@ -49,7 +50,8 @@ def get_test_results():
                     total_failures = int(res.group(1)) + int(res.group(2))
                     failure_history.append(total_failures)
 
-        if len(failure_history) == 1:
+        if not found_first_result and len(failure_history) == 1:
+            found_first_result = True
             timestamp = build.get_timestamp()
             today = datetime.now(pytz.UTC)
             if today - timestamp > timedelta(days=1):
