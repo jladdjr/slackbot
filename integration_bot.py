@@ -96,14 +96,14 @@ def create_test_update():
     total_failures, change = get_test_results()
 
     if total_failures == 0:
-        post_slack_msg(':green_ball: {0} is green! :green_ball:'.format(job_name))
+        post_slack_msg(':green_ball: *{0}* is green! :green_ball:'.format(job_name))
         return
 
     if total_failures == -1:
-        post_slack_msg(':skull_and_crossbones: {0} failed to run :skull_and_crossbones:'.format(job_name))
+        post_slack_msg(':skull_and_crossbones: *{0}* failed to run :skull_and_crossbones:'.format(job_name))
         return
     if total_failures == -2:
-        post_slack_msg(':construction: Failed to find results for {0} :construction:'.format(job_name))
+        post_slack_msg(':construction: Failed to find results for *{0}* :construction:'.format(job_name))
         return
 
     emoji_map = {20: ':tornado:',
@@ -121,12 +121,12 @@ def create_test_update():
             break
 
     if change > 0:
-        description = '{0} has {1} more failures'.format(job_name, change)
+        description = '*{0}* has {1} more failures'.format(job_name, change)
     elif change == 0:
-        description = '{0} has the same number of failures'.format(job_name)
+        description = '*{0}* has the same number of failures'.format(job_name)
     else:
         change = -change
-        description = '{0} has {1} fewer failures'.format(job_name, change)
+        description = '*{0}* has {1} fewer failures'.format(job_name, change)
 
     day_of_the_week = datetime.today().weekday()
     button_owner_map = {0: 'qe',
