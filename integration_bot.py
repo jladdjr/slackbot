@@ -54,8 +54,11 @@ def get_test_results():
 
         for run in runs:
             desc = run.get_description()
-            if not desc or build_label not in desc.strip('()'):
+            if not desc:
                 continue
+            if matrix_job.lower() == 'true' and build_label not in desc:
+                continue
+
             desc = desc.lower()
             results = {'passed': 0, 'failed': 0, 'error': 0}
             for result in results:
